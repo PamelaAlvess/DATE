@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Convite — 05/10 ✨</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<style>
+  /* --- RESET & BASE --- */
+  :root{
+    --bg1:#050512; --bg2:#071033; --accent:#7aa7ff; --accent2:#7ee7c4;
+    --card: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    --glass: rgba(255,255,255,0.04);
+  }
+  *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
+  html,body{height:100%;margin:0;background:
+    radial-gradient(800px 400px at 10% 10%, rgba(122,167,255,0.05), transparent 6%),
+    radial-gradient(700px 350px at 90% 85%, rgba(126,231,196,0.03), transparent 5%),
+    linear-gradient(180deg,var(--bg1),var(--bg2));
+    color:#eaf0ff;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  }
+
+  /* --- LAYOUT --- */
+  .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px}
+  .card{width:100%;max-width:460px;background:var(--card);border-radius:18px;padding:18px;box-shadow:0 12px 40px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.03);position:relative;overflow:hidden}
+
+  /* star background */
+  .stars{position:absolute;inset:0;pointer-events:none;opacity:0.95}
+  .star{position:absolute;border-radius:50%;background:rgba(255,255,255,0.9)}
+  /* small twinkle animation */
+  @keyframes twinkle{0%{opacity:.15;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}100%{opacity:.2;transform:scale(.85)}}
+  .star.s1{width:3px;height:3px;left:8%;top:12%;animation:twinkle 3s infinite}
+  .star.s2{width:2px;height:2px;left:24%;top:36%;animation:twinkle 4s .3s infinite}
+  .star.s3{width:3px;height:3px;left:66%;top:18%;animation:twinkle 3.6s .5s infinite}
+  .star.s4{width:2px;height:2px;left:82%;top:58%;animation:twinkle 2.7s .9s infinite}
+  .star.s5{width:4px;height:4px;left:48%;top:70%;animation:twinkle 3.2s .6s infinite}
+
+  /* rotating constellation svg (center) */
+  .constellation{
+    width:220px;height:220px;margin:6px auto 10px;display:block;
+    filter:drop-shadow(0 8px 20px rgba(122,167,255,0.08));
+    transform-origin:center;
+    animation:rotateSlow 20s linear infinite;
+  }
+  @keyframes rotateSlow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+  /* header */
+  .title{font-size:20px;margin:6px 0 2px}
+  .sub{color:rgba(234,240,255,0.75);font-size:14px;margin-bottom:12px}
+
+  /* question area */
+  .question{margin:12px 0;font-size:15px;color:#dfeeff}
+  .choices{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px}
+  .btn{
+    padding:12px 14px;background:transparent;border-radius:12px;border:1px solid rgba(255,255,255,0.06);
+    color:inherit;font-weight:600;min-width:120px;text-align:center;cursor:pointer;
+    transition:transform .12s ease, background .12s ease, border-color .12s;
+    touch-action: manipulation;
+  }
+  .btn:active{transform:translateY(2px)}
+  .btn.selected{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#062034;border-color:transparent;box-shadow:0 8px 20px rgba(122,167,255,0.08)}
+
+  .actions{display:flex;gap:10px;justify-content:center;margin-top:6px;flex-direction:column}
+  .primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#062034;padding:12px;border-radius:12px;border:none;font-weight:800;cursor:pointer}
+  .ghost{background:transparent;color:rgba(234,240,255,0.9);padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.06)}
+
+  .note{font-size:13px;color:rgba(234,240,255,0.6);margin-top:10px}
+
+  /* result area */
+  .resultBox{display:none;margin-top:12px;background:rgba(255,255,255,0.03);padding:12px;border-radius:10px;color:var(--muted)}
+  .answersList{text-align:left;margin-top:8px;font-size:14px;color:#dfeeff}
+
+  /* video */
+  video{width:100%;border-radius:10px;margin-top:12px;display:block}
+
+  /* confetti container */
+  #confettiCanvas{position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:9999}
+
+  /* mobile tweaks */
+  @media (max-width:420px){
+    .card{padding:14px;border-radius:14px}
+    .constellation{width:180px;height:180px}
+    .btn{min-width:100px;padding:10px 12px}
+  }
+</style>
+</head>
+<body>
+
+  <canvas id="confettiCanvas" aria-hidden="true"></canvas>
+
+  <div class="wrap">
+    <div class="card" role="main" aria-label="Convite interativo">
+      <!-- decorative stars -->
+      <div class="stars" aria-hidden="true">
+        <div class="star s1"></div><div class="star s2"></div><div class="star s3"></div><div class="star s4"></div><div class="star s5"></div>
+      </div>
+
+      <!-- animated constellation SVG (rotating) -->
+      <svg class="constellation" viewBox="0 0 200 200" aria-hidden="true">
+        <defs>
+          <linearGradient id="g1" x1="0" x2="1">
+            <stop offset="0" stop-color="#7ee7c4"/><stop offset="1" stop-color="#7aa7ff"/>
+          </linearGradient>
+        </defs>
+
+        <!-- lines -->
+        <g stroke="url(#g1)" stroke-opacity="0.9" stroke-width="1.4" fill="none" stroke-linecap="round">
+          <path d="M30 40 L70 60 L100 40 L140 70" stroke-linejoin="round" />
+          <path d="M90 110 L120 140 L160 120" stroke-linejoin="round" />
+          <path d="M70 60 L90 110" stroke-linejoin="round" />
+        </g>
+        <!-- stars -->
+        <g fill="url(#g1)">
+          <circle cx="30" cy="40" r="3.6" />
+          <circle cx="70" cy="60" r="3.2" />
+          <circle cx="100" cy="40" r="3.8" />
+          <circle cx="140" cy="70" r="3" />
+          <circle cx="90" cy="110" r="3.6" />
+          <circle cx="120" cy="140" r="3.2" />
+          <circle cx="160" cy="120" r="3.4" />
+        </g>
+      </svg>
+
+      <h2 class="title">Oii POMPOM, Tenho um convite especial para você — 05/10 ✨</h2>
+      <p class="sub">Responda essa enquete rapidinho, por favor 😊 </p>
+
+      <!-- QUESTION 1 -->
+      <div class="question" id="q1">Qual sua cor favorita?</div>
+      <div class="choices" id="c1">
+        <button class="btn" data-q="cor" data-val="Vermelho">Vermelho 🔴</button>
+        <button class="btn" data-q="cor" data-val="Azul">Azul 🔵</button>
+        <button class="btn" data-q="cor" data-val="Preto">Preto ⚫</button>
+        <button class="btn" data-q="cor" data-val="Outra">Outra 🎨</button>
+      </div>
+
+      <!-- QUESTION 2 -->
+      <div class="question" id="q2">Qual sua comida favorita?</div>
+      <div class="choices" id="c2">
+        <button class="btn" data-q="comida" data-val="Pizza">Pizza 🍕</button>
+        <button class="btn" data-q="comida" data-val="Sushi">Sushi 🍣</button>
+        <button class="btn" data-q="comida" data-val="Churrasco">Churrasco 🥩</button>
+        <button class="btn" data-q="comida" data-val="Outra">Outra 🍴</button>
+      </div>
+
+      <!-- QUESTION 3 -->
+      <div class="question" id="q3">Qual sua música favorita?</div>
+      <div class="choices" id="c3">
+        <button class="btn" data-q="musica" data-val="Pop">Pop 🎶</button>
+        <button class="btn" data-q="musica" data-val="Rock">Pagode 🎸</button>
+        <button class="btn" data-q="musica" data-val="Sertanejo">Sertanejo 🎤</button>
+        <button class="btn" data-q="musica" data-val="Outra">Outra 🎧</button>
+      </div>
+
+      <!-- QUESTION 4 -->
+      <div class="question" id="q4">Gosta de lugares altos?</div>
+      <div class="choices" id="c4">
+        <button class="btn" data-q="altas" data-val="Sim">Sim 😍</button>
+        <button class="btn" data-q="altas" data-val="Não">Não 🤔</button>
+      </div>
+
+      <div class="actions">
+        <div class="note">Data: <strong>05/10</strong> — Confirme no próximo passo.</div>
+        <button class="primary" id="toInvite">Ver convite</button>
+      </div>
+
+      <div class="resultBox" id="resultBox" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <!-- hidden invite modal (simple) -->
+  <div id="inviteModal" style="display:none;position:fixed;inset:0;background:rgba(2,6,23,0.6);backdrop-filter:blur(3px);z-index:60;align-items:center;justify-content:center;padding:20px">
+    <div style="background:linear-gradient(180deg,rgba(255,255,255,0.03),transparent);padding:18px;border-radius:14px;max-width:420px;margin:auto;text-align:center;color:#eaf0ff">
+      <h3 style="margin:6px 0 4px">Convite — 05/10 💫</h3>
+      <p style="color:rgba(234,240,255,0.85)">Quer sair comigo nesse dia? Vou combinar horário e lugar certinho quando você aceitar.</p>
+      <div style="display:flex;gap:10px;margin-top:12px;flex-direction:column">
+        <button class="primary" id="acceptBtn">Sim, eu topo 💕</button>
+        <button class="ghost" id="noBtn">Ah, não posso 😢</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- final area (video + answers) -->
+  <div id="finalScreen" style="display:none;position:fixed;inset:0;padding:18px;overflow:auto;background:linear-gradient(180deg,rgba(5,6,12,0.95),rgba(9,16,48,0.92));z-index:50">
+    <div style="max-width:460px;margin:30px auto;color:#eaf0ff">
+      <h2 style="text-align:center">Perfeito! 🎬</h2>
+      <p style="text-align:center;color:rgba(234,240,255,0.85)">Vou te mostrar algo especial e já vou mandar as respostas para mim. Obrigada por responder ❤️</p>
+
+      <!-- video (local file in same folder) -->
+      <video controls id="finalVideo" style="width:100%;border-radius:12px;margin-top:12px">
+        <source src="video.mp4" type="video/mp4">
+        Seu navegador não suporta vídeo.
+      </video>
+
+      <div style="background:rgba(255,255,255,0.03);padding:12px;border-radius:10px;margin-top:12px">
+        <h3 style="margin:0 0 8px">Suas respostas</h3>
+        <div class="answersList" id="answersList"></div>
+        <div style="margin-top:12px;font-size:14px;color:rgba(234,240,255,0.75)">Se a mensagem não abrir automaticamente, clique no botão abaixo.</div>
+        <button class="primary" id="openWhats">Enviar respostas pelo WhatsApp</button>
+      </div>
+
+      <div style="text-align:center;margin-top:14px">
+        <button class="ghost" id="closeFinal">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<script>
+  // ====== CONFIGURE AQUI: substitua pelo seu número no formato internacional sem "+" ======
+  const YOUR_PHONE = '11962409504'; // ex: 5511999998888
+
+  // guarda respostas
+  const answers = { cor:'', comida:'', musica:'', altas:'' };
+
+  // init: adiciona listeners nos botões
+  document.querySelectorAll('.btn').forEach(b => {
+    b.addEventListener('click', () => {
+      const q = b.dataset.q;
+      const val = b.dataset.val;
+      // desmarca outros do mesmo grupo
+      document.querySelectorAll(`.btn[data-q="${q}"]`).forEach(x => x.classList.remove('selected'));
+      b.classList.add('selected');
+      answers[q] = val;
+      // mostrar pequeno status
+      const box = document.getElementById('resultBox');
+      box.style.display = 'block';
+      box.textContent = `Selecionado: ${Object.values(answers).filter(v=>v).length} / 4 respondidas`;
+    });
+  });
+
+  // avança para modal de convite
+  document.getElementById('toInvite').addEventListener('click', () => {
+    // checar se todas as perguntas respondidas (opcional)
+    // se quiser obrigar, descomente a checagem
+    // if(Object.values(answers).some(v=>v==='')){ alert('Responda todas as perguntas :)'); return; }
+    document.getElementById('inviteModal').style.display = 'flex';
+  });
+
+  // aceitar convite
+  document.getElementById('acceptBtn').addEventListener('click', async () => {
+    // confete
+    confetti({
+      particleCount: 180,
+      spread: 130,
+      origin: { y: 0.2 }
+    });
+
+    // mostrar tela final
+    document.getElementById('inviteModal').style.display = 'none';
+    // preencher respostas na finalScreen
+    const list = document.getElementById('answersList');
+    list.innerHTML = `
+      <p><strong>Cor:</strong> ${answers.cor || '—'}</p>
+      <p><strong>Comida:</strong> ${answers.comida || '—'}</p>
+      <p><strong>Música:</strong> ${answers.musica || '—'}</p>
+      <p><strong>Gosta de mulheres altas:</strong> ${answers.altas || '—'}</p>
+      <p><strong>Data escolhida:</strong> 05/10</p>
+    `;
+    document.getElementById('finalScreen').style.display = 'block';
+
+    // abrir link do WhatsApp automaticamente (abre a conversa pronta; ela precisa enviar)
+    setTimeout(() => {
+      openWhatsAppWithAnswers();
+    }, 900); // pequena pausa para o confete/efeito
+  });
+
+  // se ela recusar
+  document.getElementById('noBtn').addEventListener('click', () => {
+    alert('Entendo — obrigada por responder! 💜');
+    document.getElementById('inviteModal').style.display = 'none';
+  });
+
+  // botão manual para abrir Whats
+  document.getElementById('openWhats').addEventListener('click', openWhatsAppWithAnswers);
+
+  // fechar final
+  document.getElementById('closeFinal').addEventListener('click', () => {
+    document.getElementById('finalScreen').style.display = 'none';
+  });
+
+  // monta a mensagem e abre o WhatsApp Web / App
+  function openWhatsAppWithAnswers(){
+    if(!YOUR_PHONE || YOUR_PHONE === 'SEU_NUMERO_AQUI'){
+      alert('Coloque seu número no código (const YOUR_PHONE) antes de usar para enviar as respostas pra você.');
+      return;
+    }
+    const text = `Convite%20aceito%20💫%0A%0A*Respostas*: %0A- Cor:%20${encodeURIComponent(answers.cor || '—')}%0A- Comida:%20${encodeURIComponent(answers.comida || '—')}%0A- Música:%20${encodeURIComponent(answers.musica || '—')}%0A- Mulheres%20altas:%20${encodeURIComponent(answers.altas || '—')}%0A%0AData:%2005/10`;
+    const url = `https://wa.me/${YOUR_PHONE}?text=${text}`;
+    window.open(url, '_blank');
+  }
+
+  // confetti helper já importado via CDN (canvas-confetti)
+  // nothing else required
+
+  // Accessibility: allow keyboard confirm (Enter) on primary
+  document.getElementById('toInvite').addEventListener('keydown', (e)=>{ if(e.key==='Enter') document.getElementById('inviteModal').style.display='flex'; });
+</script>
+</body>
+</html>
